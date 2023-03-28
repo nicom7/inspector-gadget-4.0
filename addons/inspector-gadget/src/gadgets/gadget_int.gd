@@ -1,9 +1,9 @@
-class_name GadgetInt
+#@tool
 extends InspectorGadgetBase
-tool
+class_name GadgetInt
 
-func _init(in_node_path: NodePath = NodePath(), in_subnames: String = "").(in_node_path, in_subnames):
-	pass
+func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
+	super._init(in_node_path, in_subnames)
 
 static func supports_type(value) -> bool:
 	if value is int:
@@ -25,8 +25,8 @@ func populate_controls() -> void:
 	spin_box.allow_lesser = true
 	spin_box.step = 1
 	spin_box.rounded = true
-	spin_box.set_anchors_and_margins_preset(PRESET_WIDE)
-	spin_box.connect("value_changed", self, "set_int_value")
+	spin_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	spin_box.value_changed.connect(set_int_value)
 	add_child(spin_box)
 
 func set_int_value(value) -> void:

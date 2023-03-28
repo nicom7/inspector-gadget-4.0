@@ -1,12 +1,12 @@
-class_name GadgetVector2
+#@tool
 extends InspectorGadgetBase
-tool
+class_name GadgetVector2
 
-func _init(in_node_path: NodePath = NodePath(), in_subnames: String = "").(in_node_path, in_subnames):
-	pass
+func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
+	super._init(in_node_path, in_subnames)
 
 func set_node_path(new_node_path: NodePath):
-	.set_node_path(new_node_path)
+	super.set_node_path(new_node_path)
 
 	if not has_controls():
 		return
@@ -18,7 +18,7 @@ func set_node_path(new_node_path: NodePath):
 	float_gadget_y.node_path = node_path
 
 func set_subnames(new_subnames: String):
-	.set_subnames(new_subnames)
+	super.set_subnames(new_subnames)
 
 	if not has_controls():
 		return
@@ -47,21 +47,21 @@ func populate_controls() -> void:
 	var label_y = Label.new()
 	label_y.text = "Y"
 
-	var float_gadget_x = GadgetFloat.new("../../" + node_path, subnames + ":x")
+	var float_gadget_x = GadgetFloat.new(NodePath("../../" + str(node_path)), subnames + ":x")
 	float_gadget_x.name = "FloatGadgetX"
 	float_gadget_x.size_flags_horizontal = SIZE_EXPAND_FILL
-	float_gadget_x.connect("change_property_begin", self, "change_property_begin")
-	float_gadget_x.connect("change_property_end", self, "change_property_end")
+	float_gadget_x.on_change_property_begin.connect(change_property_begin)
+	float_gadget_x.on_change_property_end.connect(change_property_end)
 
-	var float_gadget_y = GadgetFloat.new("../../" + node_path, subnames + ":y")
+	var float_gadget_y = GadgetFloat.new(NodePath("../../" + str(node_path)), subnames + ":y")
 	float_gadget_y.name = "FloatGadgetY"
 	float_gadget_y.size_flags_horizontal = SIZE_EXPAND_FILL
-	float_gadget_y.connect("change_property_begin", self, "change_property_begin")
-	float_gadget_y.connect("change_property_end", self, "change_property_end")
+	float_gadget_y.on_change_property_begin.connect(change_property_begin)
+	float_gadget_y.on_change_property_end.connect(change_property_end)
 
 	var hbox = HBoxContainer.new()
 	hbox.name = "HBoxContainer"
-	hbox.set_anchors_and_margins_preset(PRESET_WIDE)
+	hbox.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	hbox.add_child(label_x)
 	hbox.add_child(float_gadget_x)
 	hbox.add_child(label_y)

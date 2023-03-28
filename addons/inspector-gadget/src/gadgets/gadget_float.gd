@@ -1,9 +1,9 @@
-class_name GadgetFloat
+#@tool
 extends InspectorGadgetBase
-tool
+class_name GadgetFloat
 
-func _init(in_node_path: NodePath = NodePath(), in_subnames: String = "").(in_node_path, in_subnames):
-	pass
+func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
+	super._init(in_node_path, in_subnames)
 
 static func supports_type(value) -> bool:
 	if value is float:
@@ -24,8 +24,8 @@ func populate_controls() -> void:
 	spin_box.allow_greater = true
 	spin_box.allow_lesser = true
 	spin_box.step = 0.01
-	spin_box.set_anchors_and_margins_preset(PRESET_WIDE)
-	spin_box.connect("value_changed", self, "set_node_value")
+	spin_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
+	spin_box.value_changed.connect(set_node_value)
 	add_child(spin_box)
 
 func populate_value(value) -> void:

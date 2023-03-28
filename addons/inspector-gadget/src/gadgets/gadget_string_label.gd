@@ -1,9 +1,9 @@
-class_name GadgetStringLabel
+#@tool
 extends InspectorGadgetBase
-tool
+class_name GadgetStringLabel
 
-func _init(in_node_path: NodePath = NodePath(), in_subnames: String = "").(in_node_path, in_subnames):
-	pass
+func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
+	super._init(in_node_path, in_subnames)
 
 static func supports_type(value) -> bool:
 	return value is String

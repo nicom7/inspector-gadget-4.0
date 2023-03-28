@@ -1,16 +1,19 @@
-class_name InspectorGadgetBase
 extends MarginContainer
+class_name InspectorGadgetBase
 
-signal change_property_begin(object, property)
-signal change_property_end(object, property)
-signal gadget_event(event)
+signal on_change_property_begin(object, property)
+signal on_change_property_end(object, property)
+signal on_gadget_event(event)
 
-export(NodePath) var node_path: NodePath setget set_node_path
-export(String) var subnames: String setget set_subnames
-export(bool) var editable := true
+@export var node_path: NodePath :
+	set = set_node_path
+@export var subnames: String :
+	set = set_subnames
+@export var editable: bool = true
 
 var _node_ref := weakref(null)
-var _value setget _set_value
+var _value :
+	set = _set_value
 var _prev_container_size := -1
 
 # Public Setters
@@ -18,20 +21,20 @@ func set_node_path(new_node_path: NodePath) -> void:
 	if node_path != new_node_path:
 		node_path = new_node_path
 		update_node()
-	update_configuration_warning()
+	update_configuration_warnings()
 
 func set_subnames(new_subnames: String) -> void:
 	if subnames != new_subnames:
 		subnames = new_subnames
 		_value_changed()
-	update_configuration_warning()
+	update_configuration_warnings()
 
 # Private setters
 func _set_node(new_node: Node) -> void:
 	if _node_ref.get_ref() != new_node:
 		_node_ref = weakref(new_node)
 		_node_changed()
-	update_configuration_warning()
+	update_configuration_warnings()
 
 func _set_value(new_value) -> void:
 	var value_type = typeof(_value)
@@ -140,9 +143,9 @@ func set_node_value(new_value) -> void:
 	if not _node:
 		return
 
-	emit_signal("change_property_begin", _node, subnames)
+	emit_signal("on_change_property_begin", _node, subnames)
 	InspectorGadgetUtil.set_indexed_ex(_node, subnames, new_value)
-	emit_signal("change_property_end", _node, subnames)
+	emit_signal("on_change_property_end", _node, subnames)
 
 # Virtuals
 static func supports_type(value) -> bool:
@@ -171,10 +174,10 @@ func update_node() -> void:
 		_set_node(null)
 
 func change_property_begin(object, key) -> void:
-	emit_signal("change_property_begin", object, key)
+	emit_signal("on_change_property_begin", object, key)
 
 func change_property_end(object, key) -> void:
-	emit_signal("change_property_end", object, key)
+	emit_signal("on_change_property_end", object, key)
 
 func gadget_event(event) -> void:
-	emit_signal("gadget_event", event)
+	emit_signal("on_gadget_event", event)

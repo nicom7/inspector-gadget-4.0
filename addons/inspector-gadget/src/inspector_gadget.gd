@@ -1,18 +1,21 @@
-class_name InspectorGadget
+#@tool
 extends InspectorGadgetBase
-tool
+class_name InspectorGadget
 
-export(Array, String) var property_blacklist := []
-export(Dictionary) var custom_gadget_paths := {}
-export(Dictionary) var custom_gadget_metadata := {}
-export(Dictionary) var container_type_hints := {}
-export(bool) var filter_built_in_properties := true
+@export var property_blacklist: Array[String] = []
+@export var custom_gadget_paths: Dictionary = {}
+@export var custom_gadget_metadata: Dictionary = {}
+@export var container_type_hints: Dictionary = {}
+@export var filter_built_in_properties: bool = true
 
-func _init(in_node_path: NodePath = NodePath(), in_subnames: String = "").(in_node_path, in_subnames):
-	pass
+func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
+	var local_node_path: NodePath = node_path;
+	if (in_node_path != null):
+		local_node_path = in_node_path;
+	super._init(local_node_path, in_subnames)
 
 func set_node_path(new_node_path: NodePath):
-	.set_node_path(new_node_path)
+	super.set_node_path(new_node_path)
 
 	if not has_controls():
 		return
@@ -23,7 +26,7 @@ func set_node_path(new_node_path: NodePath):
 		child.node_path = node_path
 
 func set_subnames(new_subnames: String):
-	.set_subnames(new_subnames)
+	super.set_subnames(new_subnames)
 
 	if not has_controls():
 		return
@@ -82,14 +85,14 @@ func populate_value(value) -> void:
 			var gadget: InspectorGadgetBase = get_gadget_for_type(value[property_name], subnames + ":" + property_name, property_name)
 			if gadget:
 				gadget.size_flags_horizontal = SIZE_EXPAND_FILL
-				gadget.node_path = "../../../" + node_path
+				gadget.node_path = NodePath("../../../" + str(node_path))
 				if subnames != "":
 					gadget.subnames = subnames + ":" + property_name
 				else:
 					gadget.subnames = ":" + property_name
-				gadget.connect("change_property_begin", self, "change_property_begin")
-				gadget.connect("change_property_end", self, "change_property_end")
-				gadget.connect("gadget_event", self, "gadget_event")
+				gadget.on_change_property_begin.connect(change_property_begin)
+				gadget.on_change_property_end.connect(change_property_end)
+				gadget.on_gadget_event.connect(gadget_event)
 
 				if 'custom_gadget_paths' in gadget:
 					gadget.custom_gadget_paths = custom_gadget_paths
@@ -111,7 +114,7 @@ func populate_value(value) -> void:
 	elif InspectorGadgetUtil.is_array_type(value):
 		for i in range(0, value.size()):
 			var label = Label.new()
-			label.text = String(i)
+			label.text = str(i)
 
 			var hbox := HBoxContainer.new()
 			hbox.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -120,11 +123,11 @@ func populate_value(value) -> void:
 			var gadget: InspectorGadgetBase = get_gadget_for_type(value[i], subnames)
 			if gadget:
 				gadget.size_flags_horizontal = SIZE_EXPAND_FILL
-				gadget.node_path = "../../../../" + node_path
-				gadget.subnames = subnames + ":" + String(i)
-				gadget.connect("change_property_begin", self, "change_property_begin")
-				gadget.connect("change_property_end", self, "change_property_end")
-				gadget.connect("gadget_event", self, "gadget_event")
+				gadget.node_path = NodePath("../../../../" + str(node_path))
+				gadget.subnames = subnames + ":" + str(i)
+				gadget.on_change_property_begin.connect(change_property_begin)
+				gadget.on_change_property_end.connect(change_property_end)
+				gadget.on_gadget_event.connect(gadget_event)
 
 				if 'custom_gadget_paths' in gadget:
 					gadget.custom_gadget_paths = custom_gadget_paths
@@ -143,7 +146,7 @@ func populate_value(value) -> void:
 			if editable:
 				var delete_button := Button.new()
 				delete_button.text = "X"
-				delete_button.connect("pressed", self, "remove_array_element", [value, i])
+				delete_button.pressed.connect(func(): remove_array_element(value, i))
 				hbox.add_child(delete_button)
 
 			vbox.add_child(hbox)
@@ -165,22 +168,22 @@ func populate_value(value) -> void:
 			if subnames in container_type_hints:
 				type_hint = container_type_hints[subnames]
 			else:
-				if value is PoolByteArray:
+				if value is PackedByteArray:
 					type_hint = 0
-				elif value is PoolIntArray:
+				elif value is PackedInt32Array:
 					type_hint = 0
-				elif value is PoolRealArray:
+				elif value is PackedFloat32Array:
 					type_hint = 0.0
-				elif value is PoolStringArray:
+				elif value is PackedStringArray:
 					type_hint = ""
-				elif value is PoolVector2Array:
+				elif value is PackedVector2Array:
 					type_hint = Vector2.ZERO
-				elif value is PoolVector3Array:
+				elif value is PackedVector3Array:
 					type_hint = Vector3.ZERO
-				elif value is PoolColorArray:
-					type_hint = Color.white
+				elif value is PackedColorArray:
+					type_hint = Color.WHITE
 
-			new_button.connect("pressed", self, "add_array_element", [value, type_hint])
+			new_button.pressed.connect(func(): add_array_element(value, type_hint))
 			vbox.add_child(new_button)
 	elif value is Dictionary:
 		var keys = value.keys()
@@ -192,11 +195,11 @@ func populate_value(value) -> void:
 			var key_gadget: InspectorGadgetBase = get_gadget_for_type(key, subnames + ":[keys]")
 			if key_gadget:
 				key_gadget.size_flags_horizontal = SIZE_EXPAND_FILL
-				key_gadget.node_path = "../../../../../" + node_path
-				key_gadget.subnames = subnames + ":[keys]:" + String(i)
-				key_gadget.connect("change_property_begin", self, "change_property_begin")
-				key_gadget.connect("change_property_end", self, "change_property_end")
-				key_gadget.connect("gadget_event", self, "gadget_event")
+				key_gadget.node_path = NodePath("../../../../../" + str(node_path))
+				key_gadget.subnames = subnames + ":[keys]:" + str(i)
+				key_gadget.on_change_property_begin.connect(change_property_begin)
+				key_gadget.on_change_property_end.connect(change_property_end)
+				key_gadget.on_gadget_event.connect(gadget_event)
 
 				if 'custom_gadget_paths' in key_gadget:
 					key_gadget.custom_gadget_paths = custom_gadget_paths
@@ -213,11 +216,11 @@ func populate_value(value) -> void:
 			var value_gadget: InspectorGadgetBase = get_gadget_for_type(val, subnames + ":[values]")
 			if value_gadget:
 				value_gadget.size_flags_horizontal = SIZE_EXPAND_FILL
-				value_gadget.node_path = "../../../../../" + node_path
-				value_gadget.subnames = subnames + ":[values]:" + String(i)
-				value_gadget.connect("change_property_begin", self, "change_property_begin")
-				value_gadget.connect("change_property_end", self, "change_property_end")
-				value_gadget.connect("gadget_event", self, "gadget_event")
+				value_gadget.node_path = NodePath("../../../../../" + str(node_path))
+				value_gadget.subnames = subnames + ":[values]:" + str(i)
+				value_gadget.on_change_property_begin.connect(change_property_begin)
+				value_gadget.on_change_property_end.connect(change_property_end)
+				value_gadget.on_gadget_event.connect(gadget_event)
 
 				if 'custom_gadget_paths' in value_gadget:
 					value_gadget.custom_gadget_paths = custom_gadget_paths
@@ -241,7 +244,7 @@ func populate_value(value) -> void:
 			if editable:
 				var delete_button := Button.new()
 				delete_button.text = "X"
-				delete_button.connect("pressed", self, "remove_dictionary_element", [value, key])
+				delete_button.pressed.connect(func(): remove_dictionary_element(value, key))
 				hbox.add_child(delete_button)
 
 			var panel_container = PanelContainer.new()
@@ -265,7 +268,7 @@ func populate_value(value) -> void:
 			if subnames + ":[values]" in container_type_hints:
 				value_type_hint = container_type_hints[subnames + ":[values]"]
 
-			new_button.connect("pressed", self, "add_dictionary_element", [value, key_type_hint, value_type_hint])
+			new_button.pressed.connect(func(): add_dictionary_element(value, key_type_hint, value_type_hint))
 			vbox.add_child(new_button)
 
 func add_array_element(array, type_hint) -> void:
@@ -293,7 +296,7 @@ func remove_array_element(array, index: int) -> void:
 
 	change_property_begin(_node, subnames)
 
-	array.remove(index)
+	array.remove_at(index)
 	if not InspectorGadgetUtil.is_by_ref_type(array):
 		set_node_value(array)
 
@@ -348,7 +351,7 @@ func get_gadget_for_type(value, subnames: String, property_name: String = "") ->
 			gadget = GadgetBool.new()
 		TYPE_INT:
 			gadget = GadgetInt.new()
-		TYPE_REAL:
+		TYPE_FLOAT:
 			gadget = GadgetFloat.new()
 		TYPE_STRING:
 			gadget = GadgetStringEdit.new()
@@ -362,14 +365,14 @@ func get_gadget_for_type(value, subnames: String, property_name: String = "") ->
 			gadget = GadgetTransform2D.new()
 		TYPE_PLANE:
 			gadget = GadgetPlane.new()
-		TYPE_QUAT:
-			gadget = GadgetQuat.new()
+		TYPE_QUATERNION:
+			gadget = GadgetQuaternion.new()
 		TYPE_AABB:
 			gadget = GadgetAABB.new()
 		TYPE_BASIS:
 			gadget = GadgetBasis.new()
-		TYPE_TRANSFORM:
-			gadget = GadgetTransform.new()
+		TYPE_TRANSFORM3D:
+			gadget = GadgetTransform3D.new()
 		TYPE_COLOR:
 			gadget = GadgetColor.new()
 		TYPE_RID:
@@ -380,19 +383,19 @@ func get_gadget_for_type(value, subnames: String, property_name: String = "") ->
 			gadget = get_script().new()
 		TYPE_ARRAY:
 			gadget = get_script().new()
-		TYPE_RAW_ARRAY:
+		TYPE_PACKED_BYTE_ARRAY:
 			gadget = get_script().new()
-		TYPE_INT_ARRAY:
+		TYPE_PACKED_INT32_ARRAY:
 			gadget = get_script().new()
-		TYPE_REAL_ARRAY:
+		TYPE_PACKED_FLOAT32_ARRAY:
 			gadget = get_script().new()
-		TYPE_STRING_ARRAY:
+		TYPE_PACKED_STRING_ARRAY:
 			gadget = get_script().new()
-		TYPE_VECTOR2_ARRAY:
+		TYPE_PACKED_VECTOR2_ARRAY:
 			gadget = get_script().new()
-		TYPE_VECTOR3_ARRAY:
+		TYPE_PACKED_VECTOR3_ARRAY:
 			gadget = get_script().new()
-		TYPE_COLOR_ARRAY:
+		TYPE_PACKED_COLOR_ARRAY:
 			gadget = get_script().new()
 
 	return gadget

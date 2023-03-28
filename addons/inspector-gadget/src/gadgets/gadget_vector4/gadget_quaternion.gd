@@ -1,6 +1,6 @@
-class_name GadgetQuat
+#@tool
 extends GadgetVector4
-tool
+class_name GadgetQuaternion
 
 static func supports_type(value) -> bool:
-	return value is Quat
+	return value is Quaternion

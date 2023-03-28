@@ -1,12 +1,12 @@
-class_name GadgetBasis
+#@tool
 extends InspectorGadgetBase
-tool
+class_name GadgetBasis
 
-func _init(in_node_path: NodePath = NodePath(), in_subnames: String = "").(in_node_path, in_subnames):
-	pass
+func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
+	super._init(in_node_path, in_subnames)
 
 func set_node_path(new_node_path: NodePath):
-	.set_node_path(new_node_path)
+	super.set_node_path(new_node_path)
 
 	if not has_controls():
 		return
@@ -20,7 +20,7 @@ func set_node_path(new_node_path: NodePath):
 	z_axis_gadget.node_path = node_path
 
 func set_subnames(new_subnames: String):
-	.set_subnames(new_subnames)
+	super.set_subnames(new_subnames)
 
 	if not has_controls():
 		return
@@ -54,27 +54,27 @@ func populate_controls() -> void:
 	var label_z_axis = Label.new()
 	label_z_axis.text = "Z Axis"
 
-	var x_axis_gadget = GadgetVector3.new("../../" + node_path, subnames + ":x")
+	var x_axis_gadget = GadgetVector3.new(NodePath("../../" + str(node_path)), subnames + ":x")
 	x_axis_gadget.name = "XAxisGadget"
 	x_axis_gadget.size_flags_horizontal = SIZE_EXPAND_FILL
-	x_axis_gadget.connect("change_property_begin", self, "change_property_begin")
-	x_axis_gadget.connect("change_property_end", self, "change_property_end")
+	x_axis_gadget.on_change_property_begin.connect(change_property_begin)
+	x_axis_gadget.on_change_property_end.connect(change_property_end)
 
-	var y_axis_gadget = GadgetVector3.new("../../" + node_path, subnames + ":y")
+	var y_axis_gadget = GadgetVector3.new(NodePath("../../" + str(node_path)), subnames + ":y")
 	y_axis_gadget.name = "YAxisGadget"
 	y_axis_gadget.size_flags_horizontal = SIZE_EXPAND_FILL
-	y_axis_gadget.connect("change_property_begin", self, "change_property_begin")
-	y_axis_gadget.connect("change_property_end", self, "change_property_end")
+	y_axis_gadget.on_change_property_begin.connect(change_property_begin)
+	y_axis_gadget.on_change_property_end.connect(change_property_end)
 
-	var z_axis_gadget = GadgetVector3.new("../../" + node_path, subnames + ":z")
+	var z_axis_gadget = GadgetVector3.new(NodePath("../../" + str(node_path)), subnames + ":z")
 	z_axis_gadget.name = "ZAxisGadget"
 	z_axis_gadget.size_flags_horizontal = SIZE_EXPAND_FILL
-	z_axis_gadget.connect("change_property_begin", self, "change_property_begin")
-	z_axis_gadget.connect("change_property_end", self, "change_property_end")
+	z_axis_gadget.on_change_property_begin.connect(change_property_begin)
+	z_axis_gadget.on_change_property_end.connect(change_property_end)
 
 	var hbox = VBoxContainer.new()
 	hbox.name = "VBoxContainer"
-	hbox.set_anchors_and_margins_preset(PRESET_WIDE)
+	hbox.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	hbox.add_child(label_x_axis)
 	hbox.add_child(x_axis_gadget)
 	hbox.add_child(label_y_axis)
