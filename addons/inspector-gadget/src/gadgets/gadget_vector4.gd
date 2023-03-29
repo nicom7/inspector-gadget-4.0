@@ -1,4 +1,4 @@
-#@tool
+@tool
 extends InspectorGadgetBase
 class_name GadgetVector4
 

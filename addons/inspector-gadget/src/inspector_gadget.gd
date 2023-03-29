@@ -1,4 +1,4 @@
-#@tool
+@tool
 extends InspectorGadgetBase
 class_name InspectorGadget
 
@@ -9,10 +9,7 @@ class_name InspectorGadget
 @export var filter_built_in_properties: bool = true
 
 func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
-	var local_node_path: NodePath = node_path;
-	if (in_node_path != null):
-		local_node_path = in_node_path;
-	super._init(local_node_path, in_subnames)
+	super._init(in_node_path, in_subnames)
 
 func set_node_path(new_node_path: NodePath):
 	super.set_node_path(new_node_path)

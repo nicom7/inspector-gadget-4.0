@@ -1,4 +1,4 @@
-#@tool
+@tool
 extends GadgetStringEdit
 class_name GadgetRID
 

@@ -1,4 +1,4 @@
-#@tool
+@tool
 extends GadgetVector4
 class_name GadgetPlane
 
