@@ -2,7 +2,7 @@
 extends InspectorGadgetBase
 class_name GadgetEnum
 
-var values: Dictionary = {}
+var enum_data: Dictionary = {}
 
 func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
 	super._init(in_node_path, in_subnames)
@@ -21,18 +21,29 @@ func populate_controls() -> void:
 	btn.name = "OptionButton"
 	btn.clip_text = true
 	btn.size_flags_horizontal = SIZE_EXPAND_FILL
-	for v in values.keys():
+	for v in enum_data.keys():
 		btn.add_item(v)
 	btn.item_selected.connect(set_value)
 	add_child(btn)
 
-func set_value(value: int) -> void:
-	set_node_value(value)
+func set_value(index: int) -> void:
+	var values: = enum_data.values()
+	if index >= 0:
+		set_node_value(values[index])
+	else:
+		set_node_value(0)
 
 func populate_value(value) -> void:
 	var btn: OptionButton = get_controls()[0]
-	btn.select(value)
+	var values: = enum_data.values()
+	var index = values.find(value)
+	btn.set_block_signals(true)
+	btn.select(index)
+	btn.set_block_signals(false)
 
 func depopulate_value() -> void:
 	var btn: OptionButton = get_controls()[0]
+	btn.set_block_signals(true)
 	btn.select(-1)
+	btn.set_block_signals(false)
+

@@ -73,6 +73,7 @@ func populate_value(value) -> void:
 
 			var is_script_variable = PROPERTY_USAGE_SCRIPT_VARIABLE & property['usage'] != 0
 			var is_enum_variable = PROPERTY_HINT_ENUM & property['hint'] != 0
+			var hint_string: String = property['hint_string']
 
 			if filter_built_in_properties:
 				if not is_script_variable:
@@ -85,12 +86,18 @@ func populate_value(value) -> void:
 			vbox.add_child(label)
 
 			var gadget: InspectorGadgetBase
-			if is_enum_variable:
+			if is_enum_variable and not hint_string.is_empty():
 				gadget = GadgetEnum.new()
 				var idx: = 0
-				var enum_values = property['hint_string'].split(',')
+				var enum_values: PackedStringArray = hint_string.split(',')
 				for s in enum_values:
-					gadget.values[s] = idx
+					# Hint string can be one of two forms, e.g:
+					#	"enum_1,enum_2,enum_3" or
+					#	"enum_1:1,enum_2:2,enum_3:4"
+					# So we need to split with ':' to get the effective enum values, or consider 0, 1, 2... if no ':'
+					var kvp: PackedStringArray = s.split(':')
+					gadget.enum_data[kvp[0]] = kvp[1].to_int() if kvp.size() > 1 else idx
+					idx += 1
 			else:
 				gadget = get_gadget_for_value(value[property_name], subnames + ":" + property_name, property_name)
 
