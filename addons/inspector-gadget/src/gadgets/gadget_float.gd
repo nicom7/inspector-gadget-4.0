@@ -19,11 +19,11 @@ func get_controls() -> Array:
 func populate_controls() -> void:
 	var spin_box = SpinBox.new()
 	spin_box.name = "SpinBox"
-	spin_box.min_value = -100
-	spin_box.max_value = 100
+	spin_box.min_value = -(1 << 31)
+	spin_box.max_value = (1 << 31) - 1
 	spin_box.allow_greater = true
 	spin_box.allow_lesser = true
-	spin_box.step = 0.01
+	spin_box.step = 0.0001
 	spin_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	spin_box.value_changed.connect(set_node_value)
 	add_child(spin_box)

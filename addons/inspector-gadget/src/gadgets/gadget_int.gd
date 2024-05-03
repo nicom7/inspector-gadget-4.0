@@ -19,8 +19,8 @@ func get_controls() -> Array:
 func populate_controls() -> void:
 	var spin_box = SpinBox.new()
 	spin_box.name = "SpinBox"
-	spin_box.min_value = 0
-	spin_box.max_value = 0
+	spin_box.min_value = -(1 << 31)
+	spin_box.max_value = (1 << 31) - 1
 	spin_box.allow_greater = true
 	spin_box.allow_lesser = true
 	spin_box.step = 1
