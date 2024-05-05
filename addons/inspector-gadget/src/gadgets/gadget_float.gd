@@ -2,6 +2,8 @@
 extends InspectorGadgetBase
 class_name GadgetFloat
 
+var range_hints: String
+
 func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
 	super._init(in_node_path, in_subnames)
 
@@ -23,9 +25,10 @@ func populate_controls() -> void:
 	spin_box.max_value = (1 << 31) - 1
 	spin_box.allow_greater = true
 	spin_box.allow_lesser = true
-	spin_box.step = 0.0001
+	spin_box.step = 0.01
 	spin_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	spin_box.value_changed.connect(set_node_value)
+	InspectorGadgetUtil.setup_range(spin_box, range_hints)
 	add_child(spin_box)
 
 func populate_value(value) -> void:

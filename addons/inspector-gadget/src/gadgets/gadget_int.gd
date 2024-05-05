@@ -2,6 +2,8 @@
 extends InspectorGadgetBase
 class_name GadgetInt
 
+var range_hints: String
+
 func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
 	super._init(in_node_path, in_subnames)
 
@@ -23,10 +25,10 @@ func populate_controls() -> void:
 	spin_box.max_value = (1 << 31) - 1
 	spin_box.allow_greater = true
 	spin_box.allow_lesser = true
-	spin_box.step = 1
 	spin_box.rounded = true
 	spin_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	spin_box.value_changed.connect(set_int_value)
+	InspectorGadgetUtil.setup_range(spin_box, range_hints)
 	add_child(spin_box)
 
 func set_int_value(value) -> void:

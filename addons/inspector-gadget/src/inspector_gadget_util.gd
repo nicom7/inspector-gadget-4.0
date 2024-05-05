@@ -174,3 +174,24 @@ static func _traverse(target, property: String):
 			return target[property]
 
 	return null
+
+## Setup spin box range property settings
+static func setup_range(spin_box: SpinBox, hint_string: String) -> void:
+	if spin_box == null or hint_string.is_empty():
+		return
+
+	var range_settings: PackedStringArray = hint_string.split(',')
+
+	if range_settings.size() < 2:
+		return
+
+	for i in range_settings.size():
+		var setting = range_settings[i]
+		match i:
+			0: spin_box.min_value = setting.to_float()
+			1: spin_box.max_value = setting.to_float()
+			2: spin_box.step = setting.to_float()
+
+	spin_box.allow_greater = range_settings.has("or_greater")
+	spin_box.allow_lesser = range_settings.has("or_less")
+	spin_box.exp_edit = range_settings.has("exp")
