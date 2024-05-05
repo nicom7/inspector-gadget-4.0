@@ -263,7 +263,7 @@ func _draw() -> void:
 	origin += visualize_array(origin, packed_vector3_array_value)
 	origin += draw_heading(origin, "PackedColorArray")
 	origin += visualize_array(origin, packed_color_array_value)
-	
+
 	custom_minimum_size.y = origin.y
 
 func draw_heading(origin: Vector2, text: String) -> Vector2:
@@ -327,7 +327,7 @@ func visualize_plane(origin: Vector2, plane_value: Plane) -> Vector2:
 func visualize_quaternion(origin: Vector2, quaternion_value: Quaternion) -> Vector2:
 	var center = origin + Vector2(20, 20)
 	draw_axes_3d(center, Vector3(20, 20, 20))
-	
+
 	draw_line(center, center + project_2d(quaternion_value.normalized() * (Vector3.UP * -15)), Color.WHITE)
 
 	return Vector2(0, 60)

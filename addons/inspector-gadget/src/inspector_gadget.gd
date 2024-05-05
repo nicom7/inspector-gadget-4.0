@@ -3,6 +3,7 @@ extends InspectorGadgetBase
 class_name InspectorGadget
 
 @export var property_blacklist: Array[String] = []
+@export var property_whitelist: Array[String] = []
 @export var custom_gadget_paths: Dictionary = {}
 @export var custom_gadget_metadata: Dictionary = {}
 @export var container_type_hints: Dictionary = {}
@@ -62,12 +63,17 @@ func populate_value(value) -> void:
 			if property['name'] in property_blacklist:
 				continue
 
-			var is_editor_variable = PROPERTY_USAGE_EDITOR & property['usage'] == PROPERTY_USAGE_EDITOR
+			if not property_whitelist.is_empty() and property['name'] not in property_whitelist:
+				continue
+
+			var is_editor_variable = PROPERTY_USAGE_EDITOR & property['usage'] != 0
 
 			if not is_editor_variable:
 				continue
 
-			var is_script_variable = PROPERTY_USAGE_SCRIPT_VARIABLE & property['usage'] == PROPERTY_USAGE_SCRIPT_VARIABLE
+			var is_script_variable = PROPERTY_USAGE_SCRIPT_VARIABLE & property['usage'] != 0
+			var is_enum_variable = PROPERTY_HINT_ENUM & property['hint'] != 0
+			var hint_string: String = property['hint_string']
 
 			if filter_built_in_properties:
 				if not is_script_variable:
@@ -79,7 +85,22 @@ func populate_value(value) -> void:
 			label.text = property_name.capitalize()
 			vbox.add_child(label)
 
-			var gadget: InspectorGadgetBase = get_gadget_for_type(value[property_name], subnames + ":" + property_name, property_name)
+			var gadget: InspectorGadgetBase
+			if is_enum_variable and not hint_string.is_empty():
+				gadget = GadgetEnum.new()
+				var idx: = 0
+				var enum_values: PackedStringArray = hint_string.split(',')
+				for s in enum_values:
+					# Hint string can be one of two forms, e.g:
+					#	"enum_1,enum_2,enum_3" or
+					#	"enum_1:1,enum_2:2,enum_3:4"
+					# So we need to split with ':' to get the effective enum values, or consider 0, 1, 2... if no ':'
+					var kvp: PackedStringArray = s.split(':')
+					gadget.enum_data[kvp[0]] = kvp[1].to_int() if kvp.size() > 1 else idx
+					idx += 1
+			else:
+				gadget = get_gadget_for_value(value[property_name], subnames + ":" + property_name, property_name)
+
 			if gadget:
 				gadget.size_flags_horizontal = SIZE_EXPAND_FILL
 				gadget.node_path = NodePath("../../../" + str(node_path))
@@ -117,7 +138,7 @@ func populate_value(value) -> void:
 			hbox.size_flags_horizontal = SIZE_EXPAND_FILL
 			hbox.add_child(label)
 
-			var gadget: InspectorGadgetBase = get_gadget_for_type(value[i], subnames)
+			var gadget: InspectorGadgetBase = get_gadget_for_value(value[i], subnames)
 			if gadget:
 				gadget.size_flags_horizontal = SIZE_EXPAND_FILL
 				gadget.node_path = NodePath("../../../../" + str(node_path))
@@ -189,7 +210,7 @@ func populate_value(value) -> void:
 			var key = keys[i]
 			var val = vals[i]
 
-			var key_gadget: InspectorGadgetBase = get_gadget_for_type(key, subnames + ":[keys]")
+			var key_gadget: InspectorGadgetBase = get_gadget_for_value(key, subnames + ":[keys]")
 			if key_gadget:
 				key_gadget.size_flags_horizontal = SIZE_EXPAND_FILL
 				key_gadget.node_path = NodePath("../../../../../" + str(node_path))
@@ -210,7 +231,7 @@ func populate_value(value) -> void:
 				if 'filter_built_in_properties' in key_gadget:
 					key_gadget.filter_built_in_properties = filter_built_in_properties
 
-			var value_gadget: InspectorGadgetBase = get_gadget_for_type(val, subnames + ":[values]")
+			var value_gadget: InspectorGadgetBase = get_gadget_for_value(val, subnames + ":[values]")
 			if value_gadget:
 				value_gadget.size_flags_horizontal = SIZE_EXPAND_FILL
 				value_gadget.node_path = NodePath("../../../../../" + str(node_path))
@@ -335,13 +356,16 @@ func depopulate_value() -> void:
 		vbox.remove_child(child)
 		child.queue_free()
 
-func get_gadget_for_type(value, subnames: String, property_name: String = "") -> InspectorGadgetBase:
+func get_gadget_for_value(value, subnames: String, property_name: String = "") -> InspectorGadgetBase:
+	return get_gadget_for_type(typeof(value), subnames, property_name)
+
+func get_gadget_for_type(type, subnames: String, property_name: String = "") -> InspectorGadgetBase:
 	var gadget: InspectorGadgetBase = null
 
 	if subnames in custom_gadget_paths:
 		return custom_gadget_paths[subnames].new()
 
-	match typeof(value):
+	match type:
 		TYPE_NIL:
 			pass
 		TYPE_BOOL:
