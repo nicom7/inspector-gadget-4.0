@@ -73,6 +73,7 @@ func populate_value(value) -> void:
 
 			var is_script_variable = PROPERTY_USAGE_SCRIPT_VARIABLE & property['usage'] != 0
 			var is_enum_variable = PROPERTY_HINT_ENUM & property['hint'] != 0
+			var has_range = PROPERTY_HINT_RANGE & property['hint'] != 0
 			var hint_string: String = property['hint_string']
 
 			if filter_built_in_properties:
@@ -123,6 +124,9 @@ func populate_value(value) -> void:
 
 				if 'filter_built_in_properties' in gadget:
 					gadget.filter_built_in_properties = filter_built_in_properties
+
+				if gadget is GadgetInt or gadget is GadgetFloat:
+					gadget.range_hints = hint_string
 
 				vbox.add_child(gadget)
 
