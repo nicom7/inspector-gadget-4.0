@@ -8,6 +8,7 @@ class_name InspectorGadget
 @export var custom_gadget_metadata: Dictionary = {}
 @export var container_type_hints: Dictionary = {}
 @export var filter_built_in_properties: bool = true
+@export var use_property_separators: bool = true
 
 func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
 	super._init(in_node_path, in_subnames)
@@ -115,17 +116,7 @@ func populate_value(value) -> void:
 				gadget.on_change_property_end.connect(change_property_end)
 				gadget.on_gadget_event.connect(gadget_event)
 
-				if 'custom_gadget_paths' in gadget:
-					gadget.custom_gadget_paths = custom_gadget_paths
-
-				if 'custom_gadget_metadata' in gadget:
-					gadget.custom_gadget_metadata = custom_gadget_metadata
-
-				if 'container_type_hints' in gadget:
-					gadget.container_type_hints = container_type_hints
-
-				if 'filter_built_in_properties' in gadget:
-					gadget.filter_built_in_properties = filter_built_in_properties
+				propagate_properties(gadget)
 
 				if gadget is GadgetInt or gadget is GadgetFloat:
 					gadget.range_hints = hint_string
@@ -134,9 +125,9 @@ func populate_value(value) -> void:
 
 				vbox.add_child(gadget)
 
-				var separator = HSeparator.new()
-				separator.size_flags_horizontal = SIZE_EXPAND_FILL
-				vbox.add_child(separator)
+				if use_property_separators:
+					add_horizontal_separator(vbox)
+
 	elif InspectorGadgetUtil.is_array_type(value):
 		for i in range(0, value.size()):
 			var label = Label.new()
@@ -155,17 +146,7 @@ func populate_value(value) -> void:
 				gadget.on_change_property_end.connect(change_property_end)
 				gadget.on_gadget_event.connect(gadget_event)
 
-				if 'custom_gadget_paths' in gadget:
-					gadget.custom_gadget_paths = custom_gadget_paths
-
-				if 'custom_gadget_metadata' in gadget:
-					gadget.custom_gadget_metadata = custom_gadget_metadata
-
-				if 'container_type_hints' in gadget:
-					gadget.container_type_hints = container_type_hints
-
-				if 'filter_built_in_properties' in gadget:
-					gadget.filter_built_in_properties = filter_built_in_properties
+				propagate_properties(gadget)
 
 				hbox.add_child(gadget)
 
@@ -177,15 +158,12 @@ func populate_value(value) -> void:
 
 			vbox.add_child(hbox)
 
-			if i < value.size() - 1:
-				var separator = HSeparator.new()
-				separator.size_flags_horizontal = SIZE_EXPAND_FILL
-				vbox.add_child(separator)
+			if use_property_separators and i < value.size() - 1:
+				add_horizontal_separator(vbox)
 
 		if editable:
-			var separator = HSeparator.new()
-			separator.size_flags_horizontal = SIZE_EXPAND_FILL
-			vbox.add_child(separator)
+			if use_property_separators:
+				add_horizontal_separator(vbox)
 
 			var new_button = Button.new()
 			new_button.text = "+ New"
@@ -211,6 +189,7 @@ func populate_value(value) -> void:
 
 			new_button.pressed.connect(func(): add_array_element(value, type_hint))
 			vbox.add_child(new_button)
+
 	elif value is Dictionary:
 		var keys = value.keys()
 		var vals = value.values()
@@ -227,17 +206,7 @@ func populate_value(value) -> void:
 				key_gadget.on_change_property_end.connect(change_property_end)
 				key_gadget.on_gadget_event.connect(gadget_event)
 
-				if 'custom_gadget_paths' in key_gadget:
-					key_gadget.custom_gadget_paths = custom_gadget_paths
-
-				if 'custom_gadget_metadata' in key_gadget:
-					key_gadget.custom_gadget_metadata = custom_gadget_metadata
-
-				if 'container_type_hints' in key_gadget:
-					key_gadget.container_type_hints = container_type_hints
-
-				if 'filter_built_in_properties' in key_gadget:
-					key_gadget.filter_built_in_properties = filter_built_in_properties
+				propagate_properties(key_gadget)
 
 			var value_gadget: InspectorGadgetBase = get_gadget_for_value(val, subnames + ":[values]")
 			if value_gadget:
@@ -248,18 +217,7 @@ func populate_value(value) -> void:
 				value_gadget.on_change_property_end.connect(change_property_end)
 				value_gadget.on_gadget_event.connect(gadget_event)
 
-				if 'custom_gadget_paths' in value_gadget:
-					value_gadget.custom_gadget_paths = custom_gadget_paths
-
-				if 'custom_gadget_metadata' in value_gadget:
-					value_gadget.custom_gadget_metadata = custom_gadget_metadata
-
-				if 'container_type_hints' in value_gadget:
-					value_gadget.container_type_hints = container_type_hints
-
-				if 'filter_built_in_properties' in value_gadget:
-					value_gadget.filter_built_in_properties = filter_built_in_properties
-
+				propagate_properties(value_gadget)
 
 			var hbox = HBoxContainer.new()
 			hbox.size_flags_horizontal = SIZE_EXPAND_FILL
@@ -279,9 +237,8 @@ func populate_value(value) -> void:
 			vbox.add_child(panel_container)
 
 		if editable:
-			var separator = HSeparator.new()
-			separator.size_flags_horizontal = SIZE_EXPAND_FILL
-			vbox.add_child(separator)
+			if use_property_separators:
+				add_horizontal_separator(vbox)
 
 			var new_button = Button.new()
 			new_button.text = "+ New"
@@ -428,3 +385,24 @@ func get_gadget_for_type(type, subnames: String, property_name: String = "") -> 
 			gadget = get_script().new()
 
 	return gadget
+
+func add_horizontal_separator(parent: Control) -> void:
+	var separator = HSeparator.new()
+	separator.size_flags_horizontal = SIZE_EXPAND_FILL
+	parent.add_child(separator)
+
+func propagate_properties(target_gadget) -> void:
+	if 'custom_gadget_paths' in target_gadget:
+		target_gadget.custom_gadget_paths = custom_gadget_paths
+
+	if 'custom_gadget_metadata' in target_gadget:
+		target_gadget.custom_gadget_metadata = custom_gadget_metadata
+
+	if 'container_type_hints' in target_gadget:
+		target_gadget.container_type_hints = container_type_hints
+
+	if 'filter_built_in_properties' in target_gadget:
+		target_gadget.filter_built_in_properties = filter_built_in_properties
+
+	if 'use_property_separators' in target_gadget:
+		target_gadget.use_property_separators = use_property_separators
