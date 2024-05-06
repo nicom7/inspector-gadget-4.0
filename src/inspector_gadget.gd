@@ -80,11 +80,13 @@ func populate_value(value) -> void:
 				if not is_script_variable:
 					continue
 
-			var property_name = property['name']
+			var property_name: String = property['name']
 
-			var label = Label.new()
-			label.text = property_name.capitalize()
-			vbox.add_child(label)
+			if typeof(value[property_name]) != TYPE_BOOL:
+				# Do not add separate label for bool values; name will be displayed next to checkbox
+				var label = Label.new()
+				label.text = property_name.capitalize()
+				vbox.add_child(label)
 
 			var gadget: InspectorGadgetBase
 			if is_enum_variable and not hint_string.is_empty():
@@ -127,6 +129,8 @@ func populate_value(value) -> void:
 
 				if gadget is GadgetInt or gadget is GadgetFloat:
 					gadget.range_hints = hint_string
+				elif gadget is GadgetBool:
+					gadget.property_name = property_name.capitalize()
 
 				vbox.add_child(gadget)
 

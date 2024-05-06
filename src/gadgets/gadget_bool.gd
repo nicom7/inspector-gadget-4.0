@@ -2,6 +2,8 @@
 extends InspectorGadgetBase
 class_name GadgetBool
 
+var property_name: String
+
 func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
 	super._init(in_node_path, in_subnames)
 
@@ -21,6 +23,7 @@ func populate_controls() -> void:
 	check_box.name = "CheckBox"
 	check_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	check_box.toggled.connect(set_node_value)
+	check_box.text = property_name
 	add_child(check_box)
 
 func populate_value(value) -> void:
