@@ -121,11 +121,9 @@ func populate_value(value) -> void:
 
 				if gadget is GadgetInt or gadget is GadgetFloat:
 					gadget.range_hints = hint_string
-				elif gadget is GadgetBool:
-					gadget.property_name = property_name.capitalize()
 
 				if property_tooltips.has(property_name):
-					gadget.tooltip_text = property_tooltips[property_name]
+					gadget.tooltip_text = (property_tooltips[property_name] as String).c_unescape()
 
 				vbox.add_child(gadget)
 
@@ -332,61 +330,64 @@ func get_gadget_for_type(type, subnames: String, property_name: String = "") -> 
 	var gadget: InspectorGadgetBase = null
 
 	if subnames in custom_gadget_paths:
-		return custom_gadget_paths[subnames].new()
+		gadget = custom_gadget_paths[subnames].new() as InspectorGadgetBase
+	else:
+		match type:
+			TYPE_NIL:
+				pass
+			TYPE_BOOL:
+				gadget = GadgetBool.new()
+			TYPE_INT:
+				gadget = GadgetInt.new()
+			TYPE_FLOAT:
+				gadget = GadgetFloat.new()
+			TYPE_STRING:
+				gadget = GadgetStringEdit.new()
+			TYPE_VECTOR2:
+				gadget = GadgetVector2.new()
+			TYPE_RECT2:
+				gadget = GadgetRect2.new()
+			TYPE_VECTOR3:
+				gadget = GadgetVector3.new()
+			TYPE_TRANSFORM2D:
+				gadget = GadgetTransform2D.new()
+			TYPE_PLANE:
+				gadget = GadgetPlane.new()
+			TYPE_QUATERNION:
+				gadget = GadgetQuaternion.new()
+			TYPE_AABB:
+				gadget = GadgetAABB.new()
+			TYPE_BASIS:
+				gadget = GadgetBasis.new()
+			TYPE_TRANSFORM3D:
+				gadget = GadgetTransform3D.new()
+			TYPE_COLOR:
+				gadget = GadgetColor.new()
+			TYPE_RID:
+				gadget = GadgetRID.new()
+			TYPE_OBJECT:
+				gadget = get_script().new()
+			TYPE_DICTIONARY:
+				gadget = get_script().new()
+			TYPE_ARRAY:
+				gadget = get_script().new()
+			TYPE_PACKED_BYTE_ARRAY:
+				gadget = get_script().new()
+			TYPE_PACKED_INT32_ARRAY:
+				gadget = get_script().new()
+			TYPE_PACKED_FLOAT32_ARRAY:
+				gadget = get_script().new()
+			TYPE_PACKED_STRING_ARRAY:
+				gadget = get_script().new()
+			TYPE_PACKED_VECTOR2_ARRAY:
+				gadget = get_script().new()
+			TYPE_PACKED_VECTOR3_ARRAY:
+				gadget = get_script().new()
+			TYPE_PACKED_COLOR_ARRAY:
+				gadget = get_script().new()
 
-	match type:
-		TYPE_NIL:
-			pass
-		TYPE_BOOL:
-			gadget = GadgetBool.new()
-		TYPE_INT:
-			gadget = GadgetInt.new()
-		TYPE_FLOAT:
-			gadget = GadgetFloat.new()
-		TYPE_STRING:
-			gadget = GadgetStringEdit.new()
-		TYPE_VECTOR2:
-			gadget = GadgetVector2.new()
-		TYPE_RECT2:
-			gadget = GadgetRect2.new()
-		TYPE_VECTOR3:
-			gadget = GadgetVector3.new()
-		TYPE_TRANSFORM2D:
-			gadget = GadgetTransform2D.new()
-		TYPE_PLANE:
-			gadget = GadgetPlane.new()
-		TYPE_QUATERNION:
-			gadget = GadgetQuaternion.new()
-		TYPE_AABB:
-			gadget = GadgetAABB.new()
-		TYPE_BASIS:
-			gadget = GadgetBasis.new()
-		TYPE_TRANSFORM3D:
-			gadget = GadgetTransform3D.new()
-		TYPE_COLOR:
-			gadget = GadgetColor.new()
-		TYPE_RID:
-			gadget = GadgetRID.new()
-		TYPE_OBJECT:
-			gadget = get_script().new()
-		TYPE_DICTIONARY:
-			gadget = get_script().new()
-		TYPE_ARRAY:
-			gadget = get_script().new()
-		TYPE_PACKED_BYTE_ARRAY:
-			gadget = get_script().new()
-		TYPE_PACKED_INT32_ARRAY:
-			gadget = get_script().new()
-		TYPE_PACKED_FLOAT32_ARRAY:
-			gadget = get_script().new()
-		TYPE_PACKED_STRING_ARRAY:
-			gadget = get_script().new()
-		TYPE_PACKED_VECTOR2_ARRAY:
-			gadget = get_script().new()
-		TYPE_PACKED_VECTOR3_ARRAY:
-			gadget = get_script().new()
-		TYPE_PACKED_COLOR_ARRAY:
-			gadget = get_script().new()
+	if gadget:
+		gadget.property_name = property_name.capitalize()
 
 	return gadget
 

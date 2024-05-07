@@ -5,6 +5,7 @@ signal on_change_property_begin(object, property)
 signal on_change_property_end(object, property)
 signal on_gadget_event(event)
 
+@export var property_name: String
 @export var node_path: NodePath :
 	set = set_node_path
 @export var subnames: String :
