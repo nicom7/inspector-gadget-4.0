@@ -110,9 +110,9 @@ func populate_value(value) -> void:
 				gadget.size_flags_horizontal = SIZE_EXPAND_FILL
 				gadget.node_path = NodePath("../../../" + str(node_path))
 				if subnames != "":
-					gadget.subnames += ":" + property_name
+					gadget.subnames = subnames + ":" + property_name
 				else:
-					gadget.subnames = property_name
+					gadget.subnames = ":" + property_name
 				gadget.on_change_property_begin.connect(change_property_begin)
 				gadget.on_change_property_end.connect(change_property_end)
 				gadget.on_gadget_event.connect(gadget_event)

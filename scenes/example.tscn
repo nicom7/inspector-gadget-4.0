@@ -53,12 +53,12 @@ size_flags_vertical = 3
 script = ExtResource("1")
 property_blacklist = Array[String](["blacklisted_property"])
 custom_gadget_paths = {
-"packed_color_array_value:*": ExtResource("3_pr758")
+":packed_color_array_value:*": ExtResource("3_pr758")
 }
 container_type_hints = {
-"array_value": "",
-"array_value:4": 0,
-"dictionary_value:[keys]": 0,
-"dictionary_value:[values]": ""
+":array_value:4": 0,
+":array_value:5": "",
+":dictionary_value:[keys]": "",
+":dictionary_value:[values]": ""
 }
 node_path = NodePath("../../VisualizerScrollContainer/PropertyVisualizer")
