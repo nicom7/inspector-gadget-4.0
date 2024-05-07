@@ -4,6 +4,7 @@ class_name InspectorGadget
 
 @export var property_blacklist: Array[String] = []
 @export var property_whitelist: Array[String] = []
+@export var property_tooltips: Dictionary = {}
 @export var custom_gadget_paths: Dictionary = {}
 @export var custom_gadget_metadata: Dictionary = {}
 @export var container_type_hints: Dictionary = {}
@@ -122,6 +123,9 @@ func populate_value(value) -> void:
 					gadget.range_hints = hint_string
 				elif gadget is GadgetBool:
 					gadget.property_name = property_name.capitalize()
+
+				if property_tooltips.has(property_name):
+					gadget.tooltip_text = property_tooltips[property_name]
 
 				vbox.add_child(gadget)
 

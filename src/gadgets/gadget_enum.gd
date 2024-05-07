@@ -21,6 +21,7 @@ func populate_controls() -> void:
 	btn.name = "OptionButton"
 	btn.clip_text = true
 	btn.size_flags_horizontal = SIZE_EXPAND_FILL
+	btn.tooltip_text = tooltip_text
 	for v in enum_data.keys():
 		btn.add_item(v)
 	btn.item_selected.connect(set_value)

@@ -26,6 +26,7 @@ func populate_controls() -> void:
 	spin_box.allow_greater = true
 	spin_box.allow_lesser = true
 	spin_box.rounded = true
+	spin_box.tooltip_text = tooltip_text
 	spin_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	spin_box.value_changed.connect(set_int_value)
 	InspectorGadgetUtil.setup_range(spin_box, range_hints)

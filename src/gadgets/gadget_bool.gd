@@ -24,6 +24,7 @@ func populate_controls() -> void:
 	check_box.set_anchors_and_offsets_preset(PRESET_FULL_RECT)
 	check_box.toggled.connect(set_node_value)
 	check_box.text = property_name
+	check_box.tooltip_text = tooltip_text
 	add_child(check_box)
 
 func populate_value(value) -> void:
