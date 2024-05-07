@@ -1,4 +1,4 @@
-![](addons/inspector-gadget/icon.png)
+![](icon.png)
 
 # Inspector Gadget
 
