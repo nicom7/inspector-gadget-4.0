@@ -139,7 +139,7 @@ func populate_value(value) -> void:
 			hbox.size_flags_horizontal = SIZE_EXPAND_FILL
 			hbox.add_child(label)
 
-			var gadget: InspectorGadgetBase = get_gadget_for_value(value[i], subnames)
+			var gadget: InspectorGadgetBase = get_gadget_for_value(value[i], subnames + ":*")
 			if gadget:
 				gadget.size_flags_horizontal = SIZE_EXPAND_FILL
 				gadget.node_path = NodePath("../../../../" + str(node_path))

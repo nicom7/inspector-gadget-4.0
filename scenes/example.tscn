@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bb8ywhm60n3q5"]
+[gd_scene load_steps=4 format=3 uid="uid://bb8ywhm60n3q5"]
 
 [ext_resource type="Script" path="res://addons/inspector-gadget/src/inspector_gadget.gd" id="1"]
 [ext_resource type="Script" path="res://addons/inspector-gadget/src/property_visualizer.gd" id="2"]
+[ext_resource type="Script" path="res://addons/inspector-gadget/src/gadgets/gadget_color_picker_button.gd" id="3_pr758"]
 
 [node name="InspectorGadgetExample" type="Control"]
 layout_mode = 3
@@ -51,6 +52,9 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1")
 property_blacklist = Array[String](["blacklisted_property"])
+custom_gadget_paths = {
+":packed_color_array_value:*": ExtResource("3_pr758")
+}
 container_type_hints = {
 ":array_value:4": 0,
 ":array_value:5": "",
