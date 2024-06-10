@@ -74,13 +74,27 @@ func populate_value(value) -> void:
 				continue
 
 			var is_script_variable = PROPERTY_USAGE_SCRIPT_VARIABLE & property['usage'] != 0
-			var is_enum_variable = PROPERTY_HINT_ENUM & property['hint'] != 0
-			var has_range = PROPERTY_HINT_RANGE & property['hint'] != 0
+
+			if filter_built_in_properties and not is_script_variable:
+				continue
+
+			var type: = property['type'] as Variant.Type
+			var is_enum_variable = (PROPERTY_HINT_ENUM == property['hint'])
+			var has_range: bool
 			var hint_string: String = property['hint_string']
 
-			if filter_built_in_properties:
-				if not is_script_variable:
-					continue
+			if (type == TYPE_PACKED_BYTE_ARRAY
+			or type == TYPE_PACKED_INT32_ARRAY
+			or type == TYPE_PACKED_INT64_ARRAY
+			or type == TYPE_PACKED_FLOAT32_ARRAY
+			or type == TYPE_PACKED_FLOAT64_ARRAY):
+				var hint_value: = hint_string.get_slice('/', 1)
+				if hint_value.begins_with(str(PROPERTY_HINT_RANGE)):
+					has_range = true
+					var prefix: StringName = "%d:" % PROPERTY_HINT_RANGE
+					hint_string = hint_value.right(-prefix.length())
+			elif (PROPERTY_HINT_RANGE == property['hint']):
+				has_range = true
 
 			var property_name: String = property['name']
 
@@ -119,7 +133,7 @@ func populate_value(value) -> void:
 
 				propagate_properties(gadget)
 
-				if gadget is GadgetInt or gadget is GadgetFloat:
+				if has_range:
 					gadget.range_hints = hint_string
 
 				if property_tooltips.has(property_name):
@@ -147,6 +161,8 @@ func populate_value(value) -> void:
 				gadget.on_change_property_begin.connect(change_property_begin)
 				gadget.on_change_property_end.connect(change_property_end)
 				gadget.on_gadget_event.connect(gadget_event)
+
+				gadget.range_hints = range_hints
 
 				propagate_properties(gadget)
 

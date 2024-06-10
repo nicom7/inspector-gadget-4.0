@@ -12,6 +12,8 @@ signal on_gadget_event(event)
 	set = set_subnames
 @export var editable: bool = true
 
+var range_hints: String
+
 var _node_ref := weakref(null)
 var _value :
 	set = _set_value

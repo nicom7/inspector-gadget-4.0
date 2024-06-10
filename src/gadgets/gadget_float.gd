@@ -2,8 +2,6 @@
 extends InspectorGadgetBase
 class_name GadgetFloat
 
-var range_hints: String
-
 func _init(in_node_path: NodePath = NodePath(), in_subnames: String = ""):
 	super._init(in_node_path, in_subnames)
 

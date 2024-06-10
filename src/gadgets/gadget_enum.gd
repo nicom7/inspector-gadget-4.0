@@ -47,4 +47,3 @@ func depopulate_value() -> void:
 	btn.set_block_signals(true)
 	btn.select(-1)
 	btn.set_block_signals(false)
-
