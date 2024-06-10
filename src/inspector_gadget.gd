@@ -187,9 +187,18 @@ func populate_value(value) -> void:
 			new_button.text = "+ New"
 
 			var type_hint = null
-			if subnames in container_type_hints:
-				type_hint = container_type_hints[subnames]
-			else:
+			for k in container_type_hints.keys():
+				# RegEx support for type hints. For example, :array1:[0-9]+:array2 will set the
+				# array2 type hint for any array1 element
+				var re: = RegEx.new()
+				var error: = re.compile("^" + k + "$")
+				if error != Error.OK: continue
+				var re_match = re.search(subnames)
+				if re_match and not re_match.get_string().is_empty():
+					type_hint = container_type_hints[k]
+					break
+
+			if type_hint == null:
 				if value is PackedByteArray:
 					type_hint = 0
 				elif value is PackedInt32Array:
